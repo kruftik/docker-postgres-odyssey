@@ -43,7 +43,7 @@ ADD confd.toml  /etc/confd/conf.d/
 COPY docker-entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
 
-EXPOSE 6432
+EXPOSE 5432
 
 ENV ODYSSEY_MAXCLIENTS 2048
 ENV ODYSSEY_POSTGRES_HOST localhost

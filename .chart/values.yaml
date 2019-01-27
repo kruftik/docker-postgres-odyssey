@@ -1,0 +1,42 @@
+# Default values for ..
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: kruft/postgres-odyssey
+  tag: latest
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 6542
+
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 125m
+    memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+odyssey:
+  ODYSSEY_MAXCLIENTS: 2048
+  ODYSSEY_POSTGRES_HOST: postgres-postgresql
+  ODYSSEY_POSTGRES_PORT: 6432
+  ODYSSEY_POSTGRES_POOL_MODE: transaction
+  ODYSSEY_POSTGRES_POOL_SIZE: 64
+  ODYSSEY_POSTGRES_POOL_TIMEOUT: 250
+  ODYSSEY_POSTGRES_POOL_TTL: 60
