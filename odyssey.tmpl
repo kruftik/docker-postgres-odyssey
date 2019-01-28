@@ -121,7 +121,7 @@ log_syslog_facility "daemon"
 # It is also possible to enable verbose logging for specific users
 # (see routes section).
 #
-log_debug no
+log_debug {{getv "/postgres/log/debug" "no"}}
 
 #
 # Log configuration.
@@ -174,7 +174,7 @@ stats_interval 60
 #  N: Add additional worker threads, if your server experience heavy load,
 #  especially using TLS setup.
 #
-workers 1
+workers {{getv "/workers" "1"}}
 
 #
 # Resolver threads.
@@ -182,14 +182,14 @@ workers 1
 # Number of threads used for DNS resolving. This value can be increased, if
 # your server experience a big number of connecting clients.
 #
-resolvers 1
+resolvers {{getv "/resolvers" "1"}}
 
 #
 # IO Readahead.
 #
 # Set size of per-connection buffer used for io readahead operations.
 #
-readahead 8192
+readahead {{getv "/readahead" "8192"}}
 
 #
 # Coroutine cache size.
@@ -200,7 +200,7 @@ readahead 8192
 #
 # Set to zero, to disable coroutine cache.
 #
-cache_coroutine 1152
+cache_coroutine {{getv "/coroutine/cache" "1152"}}
 
 #
 # Coroutine stack size.
@@ -212,21 +212,21 @@ cache_coroutine 1152
 #
 # 16KB by default.
 #
-coroutine_stack_size 4
+coroutine_stack_size {{getv "/coroutine/stacksize" "4"}}
 
 #
 # TCP nodelay.
 #
 # Set to 'yes', to enable nodelay.
 #
-nodelay yes
+nodelay {{getv "/nodelay" "yes"}}
 
 #
 # TCP keepalive time.
 #
 # Set to zero, to disable keepalive.
 #
-keepalive 15
+keepalive {{getv "/keepalive" "15"}}
 
 ###
 ### GLOBAL LIMITS
@@ -264,10 +264,10 @@ listen {
 	host "*"
 #
 #	Listen port.
-	port 5432
+	port {{getenv "ODYSSEY_LISTEN_PORT"}}
 #
 #	TCP listen backlog.
-	backlog 512
+	backlog {{getv "/backlog" "512"}}
 #
 #	TLS support.
 #
@@ -347,7 +347,21 @@ storage "postgres_server" {
 }
 
 database default {
-	user default {
+  user default {
+    authentication "block"
+    storage "postgres_server"
+    pool "session"
+    pool_size 1
+    pool_timeout 50 # msec
+    pool_ttl 5 # sec
+    pool_discard yes
+    pool_cancel yes
+    pool_rollback yes
+    client_fwd_error yes
+    log_debug no
+  }
+
+	user "{{getv "/postgres/username"}}" {
 #
 #		Authentication method.
 #
@@ -357,7 +371,7 @@ database default {
 #		"md5"        - PostgreSQL MD5 authentication
 #		"cert"       - Compare client certificate Common Name against auth_common_name's
 #
-		authentication "none"
+		authentication "clear_text"
 
 #
 #		Authentication certificate CN.
@@ -376,7 +390,7 @@ database default {
 #
 #		Depending on selected method, password can be in plain text or md5 hash.
 #
-#		password ""
+		password "{{getv "/postgres/password"}}"
 
 #
 #		Authentication query.
@@ -395,7 +409,7 @@ database default {
 #		Comment 'client_max' to disable the limit. On client limit reach, Odyssey will
 #		reply with 'too many connections'.
 #
-#		client_max 128
+		client_max {{getv "/maxclients"}}
 
 #
 #		Remote server to use.
@@ -406,9 +420,11 @@ database default {
 #		can be set using 'storage_password' field.
 #
 		storage "postgres_server"
+
+#		storage_user "{{getv "/postgres/username"}}"
+#		storage_password "{{getv "/postgres/password"}}"
+
 #		storage_db "database"
-#		storage_user "test"
-#		storage_password "test"
 
 #
 #		Server pool mode.
@@ -453,7 +469,7 @@ database default {
 #		Execute 'DISCARD ALL' and reset client parameters before using server
 #		from the pool.
 #
-		pool_discard yes
+		pool_discard {{getv "/postgres/pool/discard" "yes"}}
 
 #
 #		Server pool auto-cancel.
@@ -461,7 +477,7 @@ database default {
 #		Start additional Cancel connection in case if server left with
 #		executing query. Close connection otherwise.
 #
-		pool_cancel yes
+		pool_cancel {{getv "/postgres/pool/cancel" "yes"}}
 
 #
 #		Server pool auto-rollback.
@@ -469,12 +485,12 @@ database default {
 #		Execute 'ROLLBACK' if server left in active transaction.
 #		Close connection otherwise.
 #
-		pool_rollback yes
+		pool_rollback {{getv "/postgres/pool/rollback" "yes"}}
 
 #
 #		Forward PostgreSQL errors during remote server connection.
 #
-		client_fwd_error yes
+		client_fwd_error {{getv "/postgres/clientfwderrors" "yes"}}
 
 #
 #		Enable verbose mode for a specific route only.

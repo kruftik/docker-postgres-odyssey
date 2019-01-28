@@ -12,7 +12,7 @@ fullnameOverride: ""
 
 service:
   type: ClusterIP
-  port: 6542
+  port: 5432
 
 resources: 
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -33,9 +33,14 @@ tolerations: []
 affinity: {}
 
 odyssey:
-  ODYSSEY_MAXCLIENTS: 2048
+  ODYSSEY_MAXCLIENTS: 3096
+
   ODYSSEY_POSTGRES_HOST: postgres-postgresql
-  ODYSSEY_POSTGRES_PORT: 6432
+  ODYSSEY_POSTGRES_PORT: 5432
+
+  ODYSSEY_POSTGRES_USERNAME: postgres
+  # ODYSSEY_POSTGRES_PASSWORD: postgrespassword
+
   ODYSSEY_POSTGRES_POOL_MODE: transaction
   ODYSSEY_POSTGRES_POOL_SIZE: 64
   ODYSSEY_POSTGRES_POOL_TIMEOUT: 250
