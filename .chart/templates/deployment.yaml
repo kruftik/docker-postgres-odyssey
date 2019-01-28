@@ -23,21 +23,24 @@ spec:
         - name: odyssey
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          environment:
+          env:
 {{ range $key, $val := .Values.odyssey }}
             - name: {{ $key | upper }}
               value: {{ $val | quote }}
 {{ end }}
+
+{{ range $key, $val := .Values.odysseySecrets }}
+            - name: {{ $key | upper }}
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "..fullname" $ }}
+                  key: {{ $key }}
+{{ end }}
+
           ports:
             - name: postgres
               containerPort: 5432
               protocol: TCP
-          livenessProbe:
-            tcpSocket:
-              port: postgres
-          readinessProbe:
-            tcpSocket:
-              port: postgres
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
