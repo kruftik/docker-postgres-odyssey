@@ -4,18 +4,18 @@ MAINTAINER Dmitry Gadeev <dr.kruft@gmail.com>
 # 
 
 # ENV DEF_ODYSSEY_CONF /etc/odyssey/odyssey.conf
+ENV ODYSSEY_VERSION 1.0rc1
 
 WORKDIR /tmp/
 
 RUN set -ex \
     && apt-get update \
-    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
         git \
         libssl-dev \
-    && git clone --depth 1 git://github.com/yandex/odyssey.git \
+    && git clone --branch ${ODYSSEY_VERSION} --depth 1 git://github.com/yandex/odyssey.git \
     && cd odyssey \
     && mkdir build \
     && cd build \
